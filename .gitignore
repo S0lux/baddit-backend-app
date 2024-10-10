@@ -4,3 +4,5 @@ ssl/
 
 .env
 .env.local
+
+rewrite.sh
