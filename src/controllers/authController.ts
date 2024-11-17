@@ -17,6 +17,7 @@ const registerUser = async (req: Request, res: Response, next: NextFunction) => 
 
     return res.status(201).json({ message: "Email sent" });
   } catch (error) {
+    console.log(error)
     next(error);
   }
 };
