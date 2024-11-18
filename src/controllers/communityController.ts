@@ -27,12 +27,22 @@ const moderateMember = async (req: Request, res: Response, next: NextFunction) =
     if (!communityName || !memberName) {
       throw new HttpException(HttpStatusCode.BAD_REQUEST, APP_ERROR_CODE.unexpectedBody);
     }
-    const communityMatched = await communityService.getCommunityByName(communityName);
+    const matchedCommunity = await communityService.getCommunityByName(communityName);
 
-    if (communityMatched.ownerId !== req.user!.id) {
+    const requesterRole = await communityService.getUserCommunityRole(
+      req.user!.id,
+      matchedCommunity.id
+    );
+    const canModerate =
+      requesterRole?.communityRole === CommunityRole.MODERATOR ||
+      requesterRole?.communityRole === CommunityRole.ADMIN ||
+      matchedCommunity.ownerId !== req.user!.id;
+
+    if (!canModerate) {
       throw new HttpException(HttpStatusCode.FORBIDDEN, APP_ERROR_CODE.insufficientPermissions);
     }
-    const memberFound = await communityService.getUserInCommunity(memberName, communityMatched.id);
+
+    const memberFound = await communityService.getUserInCommunity(memberName, matchedCommunity.id);
 
     if (!memberFound) {
       throw new HttpException(HttpStatusCode.NOT_FOUND, APP_ERROR_CODE.communityMemberNotFound);
@@ -42,7 +52,7 @@ const moderateMember = async (req: Request, res: Response, next: NextFunction) =
       throw new HttpException(HttpStatusCode.FORBIDDEN, APP_ERROR_CODE.onlyAcceptedForMember);
     }
     // //if no community found -> throw 404 in service
-    communityService.moderateMember(memberName, communityMatched.id);
+    communityService.moderateMember(memberName, matchedCommunity.id);
 
     return res.status(201).json({ message: "Moderate Successfully" });
   } catch (err) {
@@ -70,7 +80,7 @@ const getModerators = async (req: Request, res: Response, next: NextFunction) =>
   }
 };
 
-const unModerateMember = async (req: Request, res: Response, next: NextFunction) => {
+const demoteMember = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const communityName = req.params["communityName"] as string;
     const memberName = req.params["memberName"] as string;
@@ -227,6 +237,6 @@ export const communityController = {
   deleteCommunity,
   updateCommunityBanner,
   updateCommunityLogo,
-  unModerateMember,
+  unModerateMember: demoteMember,
   unJoinCommunity,
 };

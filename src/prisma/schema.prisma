@@ -1,5 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  binaryTargets = ["debian-openssl-3.0.x"]
 }
 
 datasource db {
@@ -20,6 +21,7 @@ model User {
   gender                  Gender           @default(Unknown)
   registeredAt            DateTime         @default(now())
   updateAt                DateTime         @updatedAt
+  messagePrivacy          MessagePrivacy   @default(EVERYONE)
   communitiesOwned        Community[]
   emailTokens             EmailToken[]
   communitiesParticipated User_Community[]
@@ -27,6 +29,27 @@ model User {
   PostVote                PostVote[]
   Comment                 Comment[]
   CommentVote             CommentVote[]
+  FriendedWith            User[]           @relation("UserFriends")
+  FriendedBy              User[]           @relation("UserFriends")
+  MessageChannels         MessageChannel[]
+  Message                 Message[]
+}
+
+model MessageChannel {
+  id       String    @id @default(uuid())
+  users    User[]
+  messages Message[]
+}
+
+model Message {
+  id        String         @id @default(uuid())
+  channel   MessageChannel @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  channelId String
+  content   String
+  isDeleted Boolean        @default(false)
+  sender    User           @relation(fields: [senderId], references: [id])
+  senderId  String
+  createdAt DateTime       @default(now())
 }
 
 model EmailToken {
@@ -154,4 +177,9 @@ enum Gender {
   Male
   Female
   Unknown
+}
+
+enum MessagePrivacy {
+  EVERYONE
+  FRIENDS
 }

@@ -2,9 +2,13 @@ services:
   api:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
     ports:
       - "3001:3001"
+    volumes:
+      - .:/home/baddit/
+      - /home/baddit/node_modules
+      - /home/baddit/dist
     environment:
       DOMAIN: ${DOMAIN}
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgresql/${POSTGRES_DB}
