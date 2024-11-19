@@ -10,46 +10,46 @@ datasource db {
 }
 
 model User {
-  id                      String           @id @default(uuid())
-  username                String           @unique
+  id                      String                  @id @default(uuid())
+  username                String                  @unique
   hashedPassword          String
-  email                   String           @unique
-  emailVerified           Boolean          @default(false)
-  avatarUrl               String           @default("https://res.cloudinary.com/drzvajzd4/image/upload/f_auto,q_auto/v1/defaults/default_avatar")
-  status                  Status           @default(STANDARD)
-  role                    UserRole         @default(USER)
-  gender                  Gender           @default(Unknown)
-  registeredAt            DateTime         @default(now())
-  updateAt                DateTime         @updatedAt
-  messagePrivacy          MessagePrivacy   @default(EVERYONE)
+  email                   String                  @unique
+  emailVerified           Boolean                 @default(false)
+  avatarUrl               String                  @default("https://res.cloudinary.com/drzvajzd4/image/upload/f_auto,q_auto/v1/defaults/default_avatar")
+  status                  Status                  @default(STANDARD)
+  role                    UserRole                @default(USER)
+  gender                  Gender                  @default(Unknown)
+  registeredAt            DateTime                @default(now())
+  updateAt                DateTime                @updatedAt
+  messagePrivacy          MessagePrivacy          @default(EVERYONE)
   communitiesOwned        Community[]
   emailTokens             EmailToken[]
-  communitiesParticipated User_Community[]
-  Post                    Post[]
-  PostVote                PostVote[]
-  Comment                 Comment[]
-  CommentVote             CommentVote[]
-  FriendedWith            User[]           @relation("UserFriends")
-  FriendedBy              User[]           @relation("UserFriends")
-  MessageChannels         MessageChannel[]
-  Message                 Message[]
+  communitiesParticipated UserCommunity[]
+  post                    Post[]
+  postVote                PostVote[]
+  comment                 Comment[]
+  commentVote             CommentVote[]
+  notifications           Notifications[]
+  readNotifications       Notifications[]         @relation("NotificationReadBy")
+  sentFriendRequests      FriendRequests[]        @relation("SentRequests")
+  receivedFriendRequests  FriendRequests[]        @relation("ReceivedRequests")
+  usersRelatedWith        UserRelations[]         @relation("RelatedWith")
+  usersRelatedBy          UserRelations[]         @relation("RelatedBy")
+  subscribedPosts         Post[]                  @relation("SubscribedToPost")
+  subscribedComments      Comment[]               @relation("SubscribedToComment")
+  chatChannels            ChatChannels[]          @relation("IsChatMemberOfChannel")
+  sentMessages            ChatMessages[]
+  readStatus              ChatChannelReadStatus[]
 }
 
-model MessageChannel {
-  id       String    @id @default(uuid())
-  users    User[]
-  messages Message[]
-}
-
-model Message {
-  id        String         @id @default(uuid())
-  channel   MessageChannel @relation(fields: [channelId], references: [id], onDelete: Cascade)
-  channelId String
-  content   String
-  isDeleted Boolean        @default(false)
-  sender    User           @relation(fields: [senderId], references: [id])
-  senderId  String
-  createdAt DateTime       @default(now())
+model UserRelations {
+  id           String       @id @default(uuid())
+  user         User         @relation("RelatedWith", fields: [userId], references: [id])
+  userId       String
+  targetUser   User         @relation("RelatedBy", fields: [targetUserId], references: [id])
+  targetUserId String
+  relation     UserRelation
+  createdAt    DateTime     @default(now())
 }
 
 model EmailToken {
@@ -61,24 +61,75 @@ model EmailToken {
   User      User     @relation(fields: [userId], references: [id])
 }
 
+model Notifications {
+  id           String           @id @default(uuid())
+  targetUser   User?            @relation(fields: [targetUserId], references: [id])
+  targetUserId String?
+  type         NotificationType
+  createdAt    DateTime         @default(now())
+  payload      Json
+  readBy       User[]           @relation("NotificationReadBy")
+}
+
+model FriendRequests {
+  id         String              @id @default(uuid())
+  sender     User                @relation("SentRequests", fields: [senderId], references: [id])
+  senderId   String
+  receiver   User                @relation("ReceivedRequests", fields: [receiverId], references: [id])
+  receiverId String
+  status     FriendRequestStatus @default(PENDING)
+  createdAt  DateTime            @default(now())
+}
+
+model ChatChannels {
+  id         String                  @id @default(uuid())
+  name       String
+  members    User[]                  @relation("IsChatMemberOfChannel")
+  messages   ChatMessages[]
+  createdAt  DateTime                @default(now())
+  readStatus ChatChannelReadStatus[]
+}
+
+model ChatMessages {
+  id             String                  @id @default(uuid())
+  sender         User                    @relation(fields: [senderId], references: [id])
+  senderId       String
+  channel        ChatChannels            @relation(fields: [channelId], references: [id])
+  channelId      String
+  content        String
+  createdAt      DateTime                @default(now())
+  chatReadStatus ChatChannelReadStatus[]
+}
+
+model ChatChannelReadStatus {
+  user              User          @relation(fields: [userId], references: [id])
+  userId            String
+  channel           ChatChannels  @relation(fields: [channelId], references: [id])
+  channelId         String
+  lastReadMessage   ChatMessages? @relation(fields: [lastReadMessageId], references: [id])
+  lastReadMessageId String?
+
+  @@id([userId, channelId])
+}
+
 model Community {
-  id          String           @id @default(uuid())
-  name        String           @unique
+  id          String          @id @default(uuid())
+  name        String          @unique
   ownerId     String
   description String
-  logoUrl     String           @default("https://placehold.co/400.png")
-  bannerUrl   String           @default("https://placehold.co/1500x400/png")
-  status      Status           @default(STANDARD)
-  memberCount Int              @default(0)
-  deleted     Boolean          @default(false)
-  createdAt   DateTime         @default(now())
-  updateAt    DateTime         @updatedAt
-  User        User             @relation(fields: [ownerId], references: [id])
-  user        User_Community[]
+  logoUrl     String          @default("https://placehold.co/400.png")
+  bannerUrl   String          @default("https://placehold.co/1500x400/png")
+  status      Status          @default(STANDARD)
+  memberCount Int             @default(0)
+  deleted     Boolean         @default(false)
+  createdAt   DateTime        @default(now())
+  updateAt    DateTime        @updatedAt
+  User        User            @relation(fields: [ownerId], references: [id])
+  user        UserCommunity[]
   Post        Post[]
 }
 
-model User_Community {
+model UserCommunity {
   userId        String
   communityId   String
   communityRole CommunityRole @default(MEMBER)
@@ -107,6 +158,7 @@ model Post {
   score         Int        @default(0)
   vote          PostVote[]
   comments      Comment[]
+  subscribers   User[]     @relation("SubscribedToPost")
 }
 
 model PostVote {
@@ -134,6 +186,7 @@ model Comment {
   children    Comment[]     @relation("Comment_Relations")
   score       Int           @default(0)
   CommentVote CommentVote[]
+  subscribers User[]        @relation("SubscribedToComment")
 }
 
 model CommentVote {
@@ -182,4 +235,21 @@ enum Gender {
 enum MessagePrivacy {
   EVERYONE
   FRIENDS
+}
+
+enum NotificationType {
+  GLOBAL
+  NEW_COMMENT
+  FRIEND_REQUEST
+}
+
+enum FriendRequestStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+enum UserRelation {
+  FRIEND
+  BLOCKED
 }
