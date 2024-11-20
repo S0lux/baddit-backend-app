@@ -1,6 +1,6 @@
 import { HttpException } from "../exception/httpError";
 import { APP_ERROR_CODE, HttpStatusCode } from "../constants/constant";
-import { Comment, VoteState, Prisma, PrismaClient, User_Community } from "@prisma/client";
+import { Comment, VoteState, Prisma, PrismaClient, UserCommunity } from "@prisma/client";
 import { commentRepository } from "../repositories/commentRepository";
 
 const prisma = new PrismaClient();
@@ -87,7 +87,7 @@ class CommentService {
     commentId: string,
     comment: Comment[],
     user: Express.User,
-    userCommunityRole: User_Community | null
+    userCommunityRole: UserCommunity | null
   ) {
     try {
       if (
@@ -112,8 +112,8 @@ class CommentService {
   }
   async getCommentById(commentId: string) {
     try {
-      const comment =  await commentRepository.getCommentById(commentId);
-      if(comment === null){
+      const comment = await commentRepository.getCommentById(commentId);
+      if (comment === null) {
         throw new HttpException(HttpStatusCode.NOT_FOUND, APP_ERROR_CODE.postNotFound);
       }
       return comment;
@@ -121,12 +121,8 @@ class CommentService {
       throw new HttpException(HttpStatusCode.INTERNAL_SERVER_ERROR, APP_ERROR_CODE.serverError);
     }
   }
-  
-  async editTextCommentContent(
-    comment: Comment,
-    content: string,
-    user: Express.User
-  ) {
+
+  async editTextCommentContent(comment: Comment, content: string, user: Express.User) {
     if (content === "") {
       throw new HttpException(HttpStatusCode.BAD_REQUEST, APP_ERROR_CODE.unexpectedBody);
     }

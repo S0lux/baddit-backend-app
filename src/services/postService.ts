@@ -4,7 +4,7 @@ import {
   PostType,
   Prisma,
   PrismaClient,
-  User_Community,
+  UserCommunity,
   PostVote,
   VoteState,
 } from "@prisma/client";
@@ -133,7 +133,7 @@ class PostService {
     postId: string,
     post: Post[],
     user: Express.User,
-    userCommunityRole: User_Community | null
+    userCommunityRole: UserCommunity | null
   ) {
     try {
       // Check if user is the author of the post

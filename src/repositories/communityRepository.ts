@@ -11,14 +11,14 @@ const getCommunityByName = async (name: string) => {
 };
 
 const moderateMember = async (username: string, communityId: string) => {
-  return await prisma.user_Community.updateMany({
+  return await prisma.userCommunity.updateMany({
     where: { user: { username }, communityId: communityId },
     data: { communityRole: CommunityRole.MODERATOR },
   });
 };
 
 const unModerateMember = async (username: string, communityId: string) => {
-  return await prisma.user_Community.updateMany({
+  return await prisma.userCommunity.updateMany({
     where: { user: { username }, communityId: communityId },
     data: { communityRole: CommunityRole.MEMBER },
   });
@@ -35,11 +35,11 @@ const createCommunityAdmin = async (
     communityRole: communityRole,
     joined: true,
   };
-  return await prisma.user_Community.create({ data }).catch((err) => console.log(err));
+  return await prisma.userCommunity.create({ data }).catch((err) => console.log(err));
 };
 
 const createCommunityMember = async (data: { communityId: string; userId: string }) => {
-  return await prisma.user_Community
+  return await prisma.userCommunity
     .create({
       data: {
         userId: data.userId,
@@ -51,7 +51,7 @@ const createCommunityMember = async (data: { communityId: string; userId: string
 };
 
 const getJoined = async (communityName: string) => {
-  return await prisma.user_Community.findMany({
+  return await prisma.userCommunity.findMany({
     where: {
       community: { name: communityName },
       joined: true,
@@ -70,7 +70,7 @@ const getJoined = async (communityName: string) => {
 };
 
 const getModerators = async (communityName: string) => {
-  return await prisma.user_Community.findMany({
+  return await prisma.userCommunity.findMany({
     where: {
       community: { name: communityName },
       banned: false,
@@ -90,13 +90,13 @@ const getModerators = async (communityName: string) => {
 };
 
 const getUserCommunityRole = async (userId: string, communityId: string) => {
-  return await prisma.user_Community.findFirst({
+  return await prisma.userCommunity.findFirst({
     where: { userId: userId, communityId: communityId },
   });
 };
 
 const getUserInCommunity = async (username: string, communityId: string) => {
-  return await prisma.user_Community.findFirst({
+  return await prisma.userCommunity.findFirst({
     where: {
       user: { username: username },
       communityId: communityId,
@@ -105,7 +105,7 @@ const getUserInCommunity = async (username: string, communityId: string) => {
 };
 
 const banUserInCommunity = async (userId: string, communityId: string) => {
-  return await prisma.user_Community.updateMany({
+  return await prisma.userCommunity.updateMany({
     where: {
       userId: userId,
       communityId: communityId,
@@ -117,7 +117,7 @@ const banUserInCommunity = async (userId: string, communityId: string) => {
 };
 
 const unBanUserInCommunity = async (userId: string, communityId: string) => {
-  return await prisma.user_Community.updateMany({
+  return await prisma.userCommunity.updateMany({
     where: {
       userId: userId,
       communityId: communityId,
@@ -152,7 +152,7 @@ const getCommunitiesWithQueries = async (queries: {
 };
 
 const getAllCommunitiesJoined = async (queries: { userId: string }) => {
-  return await prisma.user_Community.findMany({
+  return await prisma.userCommunity.findMany({
     where: {
       userId: queries.userId,
       joined: true,
@@ -174,7 +174,7 @@ const deleteCommunity = async (communityName: string) => {
 };
 
 const unJoinCommunity = async (username: string, communityId: string) => {
-  return await prisma.user_Community.updateMany({
+  return await prisma.userCommunity.updateMany({
     where: {
       user: { username },
       communityId: communityId,
@@ -186,7 +186,7 @@ const unJoinCommunity = async (username: string, communityId: string) => {
 };
 
 const joinCommunity = async (username: string, communityId: string) => {
-  return await prisma.user_Community.updateMany({
+  return await prisma.userCommunity.updateMany({
     where: {
       user: { username: username },
       communityId: communityId,

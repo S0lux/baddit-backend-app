@@ -6,7 +6,8 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
-    "dev": "nodemon src/index.ts"
+    "dev": "nodemon src/index.ts",
+    "docker:dev": "docker compose -f docker-compose.dev.yml up"
   },
   "keywords": [],
   "author": "",

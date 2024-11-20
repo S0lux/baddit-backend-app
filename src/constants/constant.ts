@@ -143,4 +143,14 @@ export const APP_ERROR_CODE = {
     code: "EMAIL_ALREADY_VERIFIED",
     message: "Email is already verified",
   },
+
+  notificationNotFound: {
+    code: "NOTIFICATION_NOT_FOUND",
+    message: "Notification not found",
+  },
+
+  invalidNotificationData: {
+    code: "INVALID_NOTIFICATION_DATA",
+    message: "Invalid notification data",
+  },
 };

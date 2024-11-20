@@ -29,7 +29,7 @@ model User {
   postVote                PostVote[]
   comment                 Comment[]
   commentVote             CommentVote[]
-  notifications           Notifications[]
+  notifications           Notifications[]         @relation("NotificationTargets")
   readNotifications       Notifications[]         @relation("NotificationReadBy")
   sentFriendRequests      FriendRequests[]        @relation("SentRequests")
   receivedFriendRequests  FriendRequests[]        @relation("ReceivedRequests")
@@ -40,6 +40,15 @@ model User {
   chatChannels            ChatChannels[]          @relation("IsChatMemberOfChannel")
   sentMessages            ChatMessages[]
   readStatus              ChatChannelReadStatus[]
+  fcmTokens               FcmTokens[]
+}
+
+model FcmTokens {
+  id             String   @id @default(uuid())
+  User           User     @relation(fields: [userId], references: [id])
+  userId         String
+  token          String   @unique
+  lastAccessDate DateTime @default(now())
 }
 
 model UserRelations {
@@ -62,13 +71,12 @@ model EmailToken {
 }
 
 model Notifications {
-  id           String           @id @default(uuid())
-  targetUser   User?            @relation(fields: [targetUserId], references: [id])
-  targetUserId String?
-  type         NotificationType
-  createdAt    DateTime         @default(now())
-  payload      Json
-  readBy       User[]           @relation("NotificationReadBy")
+  id          String           @id @default(uuid())
+  targetUsers User[]           @relation("NotificationTargets")
+  type        NotificationType
+  createdAt   DateTime         @default(now())
+  payload     Json
+  readBy      User[]           @relation("NotificationReadBy")
 }
 
 model FriendRequests {

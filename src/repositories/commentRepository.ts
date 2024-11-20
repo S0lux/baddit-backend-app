@@ -28,9 +28,18 @@ const createComment = async (data: {
   parentId?: string;
   postId?: string;
 }) => {
-  return await prisma.comment.create({ data });
+  return await prisma.comment.create({
+    data: {
+      content: data.content,
+      authorId: data.authorId,
+      parentId: data.parentId,
+      postId: data.postId,
+      subscribers: {
+        connect: { id: data.authorId },
+      },
+    },
+  });
 };
-
 const getCommentsWithQueries = async (queries: {
   requesterId?: string;
   authorName?: string;
@@ -253,10 +262,10 @@ const editTextCommentContent = async (commentId: string, content: string) => {
 const getCommentById = async (commentId: string) => {
   return await prisma.comment.findUnique({
     where: {
-      id: commentId
-    }
+      id: commentId,
+    },
   });
-}
+};
 
 export const commentRepository = {
   createComment,

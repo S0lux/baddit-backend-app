@@ -11,7 +11,19 @@ const createPost = async (data: {
   communityName?: string;
   mediaUrls?: string[];
 }) => {
-  return await prisma.post.create({ data });
+  return await prisma.post.create({
+    data: {
+      type: data.type,
+      title: data.title,
+      content: data.content,
+      authorId: data.authorId,
+      communityName: data.communityName,
+      mediaUrls: data.mediaUrls,
+      subscribers: {
+        connect: { id: data.authorId },
+      },
+    },
+  });
 };
 
 const getPostsWithQueries = async (queries: {

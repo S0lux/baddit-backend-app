@@ -4,13 +4,13 @@ type Posts = Prisma.PostGetPayload<{
   include: { community: true; author: true; vote: true; _count: { select: { comments: true } } };
 }>;
 
-type UserCommunities = Prisma.User_CommunityGetPayload<{
+type UserCommunities = Prisma.UserCommunityGetPayload<{
   include: { community: true };
 }>;
 
 type Users = Prisma.UserGetPayload<{}>;
 
-type Members = Prisma.User_CommunityGetPayload<{
+type Members = Prisma.UserCommunityGetPayload<{
   include: {
     user: {
       select: {
