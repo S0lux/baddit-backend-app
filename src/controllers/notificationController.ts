@@ -4,7 +4,16 @@ import notificationService from "../services/notificationService";
 const getNotificationsForUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.user!.id;
-    const notifications = await notificationService.getNotificationsForUser(userId);
+    const skip = req.query.skip ? Number(req.query.skip) : undefined;
+    const limit = req.query.limit ? Number(req.query.limit) : undefined;
+    const after = req.query.after ? req.query.after.toString() : undefined;
+    var notifications;
+    if (after) {
+      notifications = await notificationService.getNotificationsAfter(after, userId);
+    } else {
+      notifications = await notificationService.getNotificationsForUser(userId, skip, limit);
+    }
+
     return res.status(200).json(notifications);
   } catch (err) {
     next(err);

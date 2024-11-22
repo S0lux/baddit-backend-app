@@ -16,6 +16,8 @@ import handleError from "./middlewares/handleError";
 import swaggerUi from "swagger-ui-express";
 import { specs } from "./config/swagger";
 
+require("./firebase");
+
 const app: Application = express();
 
 // Swagger

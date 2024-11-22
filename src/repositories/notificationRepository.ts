@@ -15,7 +15,40 @@ const getNotificationById = async (notificationId: string) => {
   return notification;
 };
 
-const getNotificationsForUser = async (userId: string) => {
+const getNewNotificationsAfter = async (notificationId: string, userId: string) => {
+  const notification = await prisma.notifications.findUnique({
+    where: {
+      id: notificationId,
+    },
+  });
+
+  if (!notification) {
+    throw new Error("Notification not found");
+  }
+
+  const newNotifications = await prisma.notifications.findMany({
+    where: {
+      targetUsers: {
+        some: {
+          id: userId,
+        },
+      },
+      createdAt: {
+        gt: notification.createdAt,
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+    include: {
+      readBy: true,
+    },
+  });
+
+  return newNotifications;
+};
+
+const getNotificationsForUser = async (userId: string, skip: number = 0, limit: number = 15) => {
   const notifications = await prisma.notifications.findMany({
     where: {
       OR: [
@@ -29,6 +62,8 @@ const getNotificationsForUser = async (userId: string) => {
         { type: "GLOBAL" },
       ],
     },
+    skip: skip,
+    take: limit,
     orderBy: {
       createdAt: "desc",
     },
@@ -44,10 +79,16 @@ const getNotificationsForUser = async (userId: string) => {
   return notifications;
 };
 
+export type BaseNotificationPayload = {
+  title: string;
+  body: string;
+  typeId?: string;
+};
+
 const createNotification = async (
   targetUserIds: string[],
   notificationType: NotificationType,
-  payload: object
+  payload: BaseNotificationPayload
 ) => {
   await prisma.notifications.create({
     data: {
@@ -100,10 +141,29 @@ const addOrUpdateFcmToken = async (userId: string, fcmToken: string) => {
   });
 };
 
+const deleteFcmToken = async (fcmToken: string) => {
+  await prisma.fcmTokens.delete({
+    where: {
+      token: fcmToken,
+    },
+  });
+};
+
+const getUsersFcmTokens = async (userId: string) => {
+  return await prisma.fcmTokens.findMany({
+    where: {
+      userId: userId,
+    },
+  });
+};
+
 export const notificationRepository = {
   createNotification,
   addOrUpdateFcmToken,
   getNotificationById,
   getNotificationsForUser,
+  getNewNotificationsAfter,
   markNotificationAsRead,
+  deleteFcmToken,
+  getUsersFcmTokens,
 };
