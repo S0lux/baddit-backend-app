@@ -65,6 +65,7 @@ const removeFriendRelation = async (userId: string, friendId: string) => {
     })
 }
 
+
 export const friendRequestRepository = {
     createFriendRequest,
     getFriendRequestsBySenderId,

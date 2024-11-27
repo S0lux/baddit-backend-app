@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, UserRelation } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
@@ -8,6 +8,32 @@ const createUser = async (data: { username: string; hashedPassword: string; emai
 
 const getUserByUsername = async (username: string) => {
   return await prisma.user.findUnique({ where: { username } });
+}
+
+const getOtherUserByUsername = async (targetUsername: string, requesterId: string) => {
+  const targetUser = await prisma.user.findUnique({
+    where: { username: targetUsername },
+  });
+  if (targetUser?.id === requesterId) return { targetUser, isFriend: false };
+
+  const friendship = await prisma.userRelations.findFirst({
+    where: {
+      OR: [
+        {
+          userId: requesterId,
+          targetUserId: targetUser?.id,
+          relation: 'FRIEND'
+        },
+        {
+          userId: targetUser?.id,
+          targetUserId: requesterId,
+          relation: 'FRIEND'
+        }
+      ]
+    }
+  });
+  if (friendship) return { ...targetUser, isFriend: true };
+  else return { ...targetUser, isFriend: false };
 };
 
 const getUserByEmail = async (email: string) => {
@@ -67,6 +93,7 @@ const updatePassword = async (userId: string, newPassword: string) => {
   });
 };
 
+
 export const userRepository = {
   createUser,
   getUserByUsername,
@@ -79,4 +106,5 @@ export const userRepository = {
   getEmailTokens,
   updateEmailVerified,
   updatePassword,
+  getOtherUserByUsername
 };

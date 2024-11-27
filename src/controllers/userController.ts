@@ -29,9 +29,8 @@ const getMe = async (req: Request, res: Response, next: NextFunction) => {
 const getOther = async (req: Request, res: Response, next: NextFunction) => {
   const username = req.params.username;
   try {
-    const user = await userService.getUserByUserName(username);
-    const userParsed = user as Prisma.UserGetPayload<{}>;
-    res.status(200).json(reformatters.reformatUsers(userParsed));
+    const user = await userService.getOtherUserByUsername(username, req.user!.id);
+    res.status(200).json(user);
   } catch (err) {
     next(err);
   }

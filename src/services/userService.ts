@@ -33,6 +33,14 @@ class userService {
     }
   }
 
+  async getOtherUserByUsername(targetUsername: string, requesterId: string) {
+    try {
+      return await userRepository.getOtherUserByUsername(targetUsername, requesterId);
+    } catch {
+      throw new HttpException(HttpStatusCode.NOT_FOUND, APP_ERROR_CODE.userNotFound);
+    }
+  }
+
   async updatePassword(userId: string, newPassword: string) {
     try {
       await userRepository.updatePassword(userId, generateHash(newPassword));
@@ -45,6 +53,7 @@ class userService {
       throw new HttpException(HttpStatusCode.INTERNAL_SERVER_ERROR, APP_ERROR_CODE.serverError);
     }
   }
+
 }
 
 export default new userService();

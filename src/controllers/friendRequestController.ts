@@ -5,8 +5,8 @@ import friendRequestService from "../services/friendRequestService";
 
 const sendFriendRequest = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { senderId, receiverId } = req.body
-        const request = await friendRequestService.sendFriendRequest(senderId, receiverId)
+        const { receiverId } = req.body
+        const request = await friendRequestService.sendFriendRequest(req!.user!.id, receiverId)
         res.status(201).json(request)
     } catch (error) {
         next(error)
