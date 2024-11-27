@@ -14,7 +14,7 @@ const getOtherUserByUsername = async (targetUsername: string, requesterId: strin
   const targetUser = await prisma.user.findUnique({
     where: { username: targetUsername },
   });
-  if (targetUser?.id === requesterId) return { targetUser, isFriend: false };
+  if (targetUser?.id === requesterId) return { ...targetUser, isFriend: false };
 
   const friendship = await prisma.userRelations.findFirst({
     where: {
