@@ -1,7 +1,6 @@
-import { CommunityRole, PrismaClient } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
-
 
 const createDirectChatChannel = async (userId1: string, userId2: string) => {
     return prisma.chatChannels.create({
@@ -18,6 +17,42 @@ const createDirectChatChannel = async (userId1: string, userId2: string) => {
             members: true
         }
     })
+}
+
+const getOrCreateDirectChatChannel = async (userId1: string, userId2: string) => {
+    // First, try to find an existing direct chat channel between these two users
+    const existingChannel = await prisma.chatChannels.findFirst({
+        where: {
+            AND: [
+                { members: { some: { id: userId1 } } },
+                { members: { some: { id: userId2 } } }
+            ]
+        },
+        include: {
+            members: true
+        }
+    });
+
+    // If channel exists, return it
+    if (existingChannel) {
+        return existingChannel;
+    }
+
+    // If no existing channel, create a new one
+    return prisma.chatChannels.create({
+        data: {
+            name: `Chat between ${userId1} and ${userId2}`,
+            members: {
+                connect: [
+                    { id: userId1 },
+                    { id: userId2 }
+                ]
+            }
+        },
+        include: {
+            members: true
+        }
+    });
 }
 
 const createMessage = async (senderId: string, channelId: string, content: string) => {
@@ -60,9 +95,9 @@ const checkChannelMembership = async (userId: string, channelId: string) => {
     return !!channel
 }
 
-
 export const chatRepository = {
     createDirectChatChannel,
+    getOrCreateDirectChatChannel,
     createMessage,
     getChannelMessages,
     checkChannelMembership

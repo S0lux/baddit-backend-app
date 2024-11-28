@@ -2,7 +2,32 @@ import { APP_ERROR_CODE, HttpStatusCode } from "../constants/constant";
 import { HttpException } from "../exception/httpError";
 import { chatRepository } from "../repositories/chatRepository";
 
-class ChatMessageService {
+class ChatChannelService {
+    async getOrCreateDirectChatChannel(userId1: string, userId2: string) {
+        // Validate input
+        if (!userId1 || !userId2) {
+            throw new HttpException(HttpStatusCode.BAD_REQUEST, APP_ERROR_CODE.unexpectedBody);
+        }
+
+        try {
+            // Ensure users are different
+            if (userId1 === userId2) {
+                throw new HttpException(HttpStatusCode.BAD_REQUEST, {
+                    code: "SAME_USER",
+                    message: "Cannot create a chat channel with the same user"
+                });
+            }
+
+            // Get or create the channel
+            const channel = await chatRepository.getOrCreateDirectChatChannel(userId1, userId2);
+
+            return channel;
+        } catch (error) {
+            if (error instanceof HttpException) throw error;
+            throw new HttpException(HttpStatusCode.INTERNAL_SERVER_ERROR, APP_ERROR_CODE.serverError);
+        }
+    }
+
     async sendMessage(senderId: string, channelId: string, content: string) {
         // Validate input
         if (!senderId || !channelId || !content) {
@@ -56,4 +81,4 @@ class ChatMessageService {
     }
 }
 
-export default new ChatMessageService();
+export default new ChatChannelService();
