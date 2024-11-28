@@ -4,10 +4,9 @@ import ensureAuthenticated from "../middlewares/ensureAuthenticated";
 import { chatController } from "../controllers/chatController";
 
 const router = express.Router();
-
 router.use(ensureAuthenticated);
 router.post("/direct", chatController.getOrCreateDirectChannel);
 router.get('/:channelId', chatController.getChannelMessages)
-router.post('/:channelId', chatController.sendMessage)
+router.post("/", chatController.sendMessage);
 
 export default router
