@@ -15,8 +15,8 @@ const sendFriendRequest = async (req: Request, res: Response, next: NextFunction
 
 const acceptFriendRequest = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { requestId, receiverId } = req.body
-        const request = await friendRequestService.acceptFriendRequest(requestId, receiverId)
+        const { requestId } = req.body
+        const request = await friendRequestService.acceptFriendRequest(requestId)
         res.status(200).json(request)
     } catch (error) {
         next(error)

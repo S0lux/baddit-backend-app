@@ -28,9 +28,9 @@ class FriendRequestsService {
         }
     }
 
-    async acceptFriendRequest(requestId: string, receiverId: string) {
+    async acceptFriendRequest(requestId: string) {
         // Validate input
-        if (!requestId || !receiverId) {
+        if (!requestId) {
             throw new HttpException(HttpStatusCode.BAD_REQUEST, APP_ERROR_CODE.unexpectedBody);
         }
 

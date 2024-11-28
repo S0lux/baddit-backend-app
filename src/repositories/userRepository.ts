@@ -1,4 +1,4 @@
-import { PrismaClient, UserRelation } from "@prisma/client";
+import { FriendRequestStatus, PrismaClient, UserRelation } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
@@ -14,7 +14,17 @@ const getOtherUserByUsername = async (targetUsername: string, requesterId: strin
   const targetUser = await prisma.user.findUnique({
     where: { username: targetUsername },
   });
-  if (targetUser?.id === requesterId) return { ...targetUser, isFriend: false };
+  if (targetUser?.id === requesterId) return { ...targetUser, isFriend: false, friendRequestStatus: null };
+
+  const friendRequest = await prisma.friendRequests.findFirst({
+    where: {
+      senderId: requesterId,
+      receiverId: targetUser?.id,
+    }
+  })
+  if (friendRequest && friendRequest.status == FriendRequestStatus.PENDING) return { ...targetUser, isFriend: false, friendRequestStatus: FriendRequestStatus.PENDING };
+  else if (friendRequest && friendRequest.status == FriendRequestStatus.REJECTED) return { ...targetUser, isFriend: false, friendRequestStatus: FriendRequestStatus.REJECTED };
+
 
   const friendship = await prisma.userRelations.findFirst({
     where: {
@@ -32,8 +42,8 @@ const getOtherUserByUsername = async (targetUsername: string, requesterId: strin
       ]
     }
   });
-  if (friendship) return { ...targetUser, isFriend: true };
-  else return { ...targetUser, isFriend: false };
+  if (friendship) return { ...targetUser, isFriend: true, friendRequestStatus: FriendRequestStatus.ACCEPTED };
+  else return { ...targetUser, isFriend: false, friendRequestStatus: null };
 };
 
 const getUserByEmail = async (email: string) => {
