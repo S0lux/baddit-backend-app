@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { FriendRequestStatus, PrismaClient, UserRelation } from "@prisma/client";
 
 const prisma = new PrismaClient();
 

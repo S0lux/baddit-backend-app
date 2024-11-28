@@ -6,7 +6,7 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-  // "postgresql://baddit:baddit@localhost/baddit"
+  // url      = "postgresql://baddit:baddit@localhost/baddit"
 }
 
 model User {
@@ -104,7 +104,8 @@ model ChatMessages {
   senderId       String
   channel        ChatChannels            @relation(fields: [channelId], references: [id])
   channelId      String
-  content        String
+  content        String // This field is text or image url
+  type           ChatMessageType         @default(TEXT)
   createdAt      DateTime                @default(now())
   chatReadStatus ChatChannelReadStatus[]
 }
@@ -260,4 +261,9 @@ enum FriendRequestStatus {
 enum UserRelation {
   FRIEND
   BLOCKED
+}
+
+enum ChatMessageType {
+  TEXT
+  IMAGE
 }

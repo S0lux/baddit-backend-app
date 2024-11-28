@@ -19,6 +19,7 @@ const sendFriendRequest = async (req: Request, res: Response, next: NextFunction
       [req.params.userId],
       "FRIEND_REQUEST",
       {
+        type: "FRIEND_REQUEST",
         title: "Friend request",
         body: `${req.user!.username} sent you a friend request`,
         typeId: req.user!.id,
@@ -52,6 +53,7 @@ const acceptFriendRequest = async (req: Request, res: Response, next: NextFuncti
       [req.params.userId],
       "FRIEND_REQUEST",
       {
+        type: "FRIEND_REQUEST",
         title: "Friend request accepted",
         body: `${req.user!.username} has accepted your friend request`,
         typeId: req.user!.id,

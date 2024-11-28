@@ -3,7 +3,6 @@ import { APP_ERROR_CODE, HttpStatusCode } from "../constants/constant";
 import { HttpException } from "../exception/httpError";
 import { userRepository } from "../repositories/userRepository";
 import { generateHash } from "../utils/hashFunctions";
-import { User } from "@prisma/client";
 
 class userService {
   async updateUserAvatar(id: string, avatarUrl: string) {

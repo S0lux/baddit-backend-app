@@ -82,6 +82,7 @@ const getNotificationsForUser = async (userId: string, skip: number = 0, limit: 
 export type BaseNotificationPayload = {
   title: string;
   body: string;
+  type?: string;
   typeId?: string;
 };
 

@@ -4,7 +4,6 @@ import { HttpException } from "../exception/httpError";
 import { APP_ERROR_CODE, HttpStatusCode } from "../constants/constant";
 import communityService from "../services/communityService";
 import { reformatters } from "../utils/reformatters";
-import { Prisma } from "@prisma/client";
 import postService from "../services/postService";
 import commentService from "../services/commentService";
 
@@ -30,8 +29,7 @@ const getOther = async (req: Request, res: Response, next: NextFunction) => {
   const username = req.params.username;
   try {
     const user = await userService.getUserByUserName(username);
-    const userParsed = user as Prisma.UserGetPayload<{}>;
-    res.status(200).json(reformatters.reformatUsers(userParsed));
+    res.status(200).json(user);
   } catch (err) {
     next(err);
   }

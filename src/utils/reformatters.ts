@@ -60,15 +60,14 @@ function reformatUserCommunities(userCommunities: UserCommunities[]) {
   return formattedUserCommunities;
 }
 
-function reformatUsers(user: Users) {
+function reformatOtherUsers(user: { targetUser: Prisma.UserGetPayload<{}>, isFriend: boolean }) {
   const formattedUsers = {
-    id: user.id,
-    username: user.username,
-    avatarUrl: user.avatarUrl,
-    registeredAt: user.registeredAt,
+    ...user.targetUser,
+    isFriend: user.isFriend,
   };
   return formattedUsers;
 }
+
 
 function reformatComments(comments: any) {
   // Helper function to transform a single comment
@@ -81,10 +80,10 @@ function reformatComments(comments: any) {
     comment.community =
       comment.post?.community != null
         ? {
-            id: comment.post.community.id,
-            name: comment.post.community.name,
-            logoUrl: comment.post.community.logoUrl,
-          }
+          id: comment.post.community.id,
+          name: comment.post.community.name,
+          logoUrl: comment.post.community.logoUrl,
+        }
         : null;
 
     delete comment.post;
@@ -118,7 +117,7 @@ function reformatMembers(members: Members[]) {
 export const reformatters = {
   reformatPosts,
   reformatUserCommunities,
-  reformatUsers,
+  reformatOtherUsers,
   reformatComments,
   reformatMembers,
 };
