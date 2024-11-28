@@ -79,6 +79,20 @@ class ChatChannelService {
             throw new HttpException(HttpStatusCode.INTERNAL_SERVER_ERROR, APP_ERROR_CODE.serverError);
         }
     }
+
+    async getAllChannels(userId: string) {
+        // Validate input
+        if (!userId) {
+            throw new HttpException(HttpStatusCode.BAD_REQUEST, APP_ERROR_CODE.unexpectedBody);
+        }
+        try {
+            // Fetch all channels
+            return await chatRepository.getAllChannels(userId);
+        } catch (error) {
+            if (error instanceof HttpException) throw error;
+            throw new HttpException(HttpStatusCode.INTERNAL_SERVER_ERROR, APP_ERROR_CODE.serverError);
+        }
+    }
 }
 
 export default new ChatChannelService();

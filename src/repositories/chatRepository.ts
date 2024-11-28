@@ -80,6 +80,21 @@ const getChannelMessages = async (channelId: string, limit: number, offset: numb
     })
 }
 
+const getAllChannels = async (userId: string) => {
+    return prisma.chatChannels.findMany({
+        where: {
+            members: {
+                some: {
+                    id: userId
+                }
+            }
+        }
+        , include: {
+            members: true
+        }
+    })
+}
+
 const checkChannelMembership = async (userId: string, channelId: string) => {
     const channel = await prisma.chatChannels.findUnique({
         where: {
@@ -100,5 +115,6 @@ export const chatRepository = {
     getOrCreateDirectChatChannel,
     createMessage,
     getChannelMessages,
-    checkChannelMembership
+    checkChannelMembership,
+    getAllChannels
 }

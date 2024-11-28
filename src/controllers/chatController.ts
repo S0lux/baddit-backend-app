@@ -18,10 +18,7 @@ const sendMessage = async (req: Request, res: Response, next: NextFunction) => {
 
         const message = await chatService.sendMessage(senderId, channelId, content);
 
-        res.status(HttpStatusCode.CREATED).json({
-            message: "Message sent successfully",
-            data: message
-        });
+        res.status(HttpStatusCode.CREATED).json(message);
     } catch (error) {
         next(error);
     }
@@ -53,10 +50,9 @@ const getChannelMessages = async (req: Request, res: Response, next: NextFunctio
             parsedOffset
         );
 
-        res.status(HttpStatusCode.SUCCESS).json({
-            message: "Channel messages retrieved successfully",
-            data: messages
-        });
+        res.status(HttpStatusCode.SUCCESS).json(
+            messages
+        );
     } catch (error) {
         next(error);
     }
@@ -88,17 +84,39 @@ const getOrCreateDirectChannel = async (req: Request, res: Response, next: NextF
             targetUserId
         );
 
-        res.status(HttpStatusCode.SUCCESS).json({
-            message: "Chat channel retrieved or created successfully",
-            data: channel
-        });
+        res.status(HttpStatusCode.SUCCESS).json(
+            channel
+        );
     } catch (error) {
         next(error);
     }
 };
 
+const getAllChannels = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        // Assuming the authenticated user's ID is available in the request
+        const userId = req.user?.id;
+
+        if (!userId) {
+            throw new HttpException(HttpStatusCode.UNAUTHORIZED, {
+                code: "UNAUTHORIZED",
+                message: "User not authenticated"
+            });
+        }
+
+        const channels = await chatService.getAllChannels(userId);
+
+        res.status(HttpStatusCode.SUCCESS).json(
+            channels
+        );
+    } catch (error) {
+        next(error);
+    }
+}
+
 export const chatController = {
     sendMessage,
     getChannelMessages,
-    getOrCreateDirectChannel
+    getOrCreateDirectChannel,
+    getAllChannels
 }
