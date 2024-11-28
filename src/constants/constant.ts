@@ -153,4 +153,24 @@ export const APP_ERROR_CODE = {
     code: "INVALID_NOTIFICATION_DATA",
     message: "Invalid notification data",
   },
+
+  alreadyFriended: {
+    code: "ALREADY_FRIENDED",
+    message: "Users are already friends",
+  },
+
+  notFriended: {
+    code: "NOT_FRIENDED",
+    message: "Users are not friends",
+  },
+
+  blocked: {
+    code: "BLOCKED",
+    message: "User is blocked",
+  },
+
+  friendRequestAlreadySent: {
+    code: "FRIEND_REQUEST_ALREADY_SENT",
+    message: "Friend request already sent",
+  },
 };

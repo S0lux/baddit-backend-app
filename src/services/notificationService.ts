@@ -61,6 +61,9 @@ class notificationService {
     // Delete stale tokens
     staleTokens.forEach((staleToken) => notificationRepository.deleteFcmToken(staleToken.token));
 
+    // If there is no valid tokens, return
+    if (validTokens.length == 0) return;
+
     // Send push notification
     var message: MulticastMessage = {
       tokens: validTokens.map((token) => token.token),
