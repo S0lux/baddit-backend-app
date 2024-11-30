@@ -3,7 +3,7 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 const createDirectChatChannel = async (userId1: string, userId2: string) => {
-    return prisma.chatChannels.create({
+    return await prisma.chatChannels.create({
         data: {
             name: `Chat between ${userId1} and ${userId2}`,
             members: {
@@ -39,7 +39,7 @@ const getOrCreateDirectChatChannel = async (userId1: string, userId2: string) =>
     }
 
     // If no existing channel, create a new one
-    return prisma.chatChannels.create({
+    return await prisma.chatChannels.create({
         data: {
             name: `Chat between ${userId1} and ${userId2}`,
             members: {
@@ -56,7 +56,7 @@ const getOrCreateDirectChatChannel = async (userId1: string, userId2: string) =>
 }
 
 const createMessage = async (senderId: string, channelId: string, content: string) => {
-    return prisma.chatMessages.create({
+    return await prisma.chatMessages.create({
         data: {
             senderId,
             channelId,
@@ -69,7 +69,7 @@ const createMessage = async (senderId: string, channelId: string, content: strin
 }
 
 const getChannelMessages = async (channelId: string, limit: number, offset: number) => {
-    return prisma.chatMessages.findMany({
+    return await prisma.chatMessages.findMany({
         where: { channelId },
         orderBy: { createdAt: 'desc' },
         take: limit,
@@ -81,7 +81,7 @@ const getChannelMessages = async (channelId: string, limit: number, offset: numb
 }
 
 const getAllChannels = async (userId: string) => {
-    return prisma.chatChannels.findMany({
+    return await prisma.chatChannels.findMany({
         where: {
             members: {
                 some: {
