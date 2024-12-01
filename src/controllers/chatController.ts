@@ -114,9 +114,30 @@ const getAllChannels = async (req: Request, res: Response, next: NextFunction) =
     }
 }
 
+const uploadFile = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { channelId } = req.body;
+
+        if (!channelId) {
+            throw new HttpException(HttpStatusCode.BAD_REQUEST, {
+                code: "MISSING_CHANNEL_ID",
+                message: "Channel ID is required"
+            });
+        }
+
+        const mediaUrls = await chatService.uploadFile(req.user!.id, channelId, req.files as Express.Multer.File[]);
+
+        res.status(HttpStatusCode.SUCCESS).json(mediaUrls);
+
+    } catch (error) {
+        next(error);
+    }
+}
+
 export const chatController = {
     sendMessage,
     getChannelMessages,
     getOrCreateDirectChannel,
-    getAllChannels
+    getAllChannels,
+    uploadFile
 }

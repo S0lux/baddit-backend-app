@@ -93,6 +93,33 @@ class ChatChannelService {
             throw new HttpException(HttpStatusCode.INTERNAL_SERVER_ERROR, APP_ERROR_CODE.serverError);
         }
     }
+    async uploadFile(senderId: string, channelId: string, mediaArray?: Express.Multer.File[]) {
+        // Validate input
+        if (!senderId || !channelId) {
+            throw new HttpException(HttpStatusCode.BAD_REQUEST, APP_ERROR_CODE.unexpectedBody);
+        }
+
+        if (!mediaArray || mediaArray.length === 0) {
+            throw new HttpException(HttpStatusCode.BAD_REQUEST, APP_ERROR_CODE.missingMedia);
+        }
+
+        try {
+            // Check if sender is a member of the channel
+            const isMember = await chatRepository.checkChannelMembership(senderId, channelId);
+
+            if (!isMember) {
+                throw new HttpException(HttpStatusCode.FORBIDDEN, {
+                    code: "NOT_CHANNEL_MEMBER",
+                    message: "You are not a member of this chat channel"
+                });
+            }
+
+            return mediaArray.map((file) => file.path);
+        } catch (error) {
+            if (error instanceof HttpException) throw error;
+            throw new HttpException(HttpStatusCode.INTERNAL_SERVER_ERROR, APP_ERROR_CODE.serverError);
+        }
+    }
 }
 
 export default new ChatChannelService();

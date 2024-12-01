@@ -6,7 +6,7 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-  // url      = "postgresql://baddit:baddit@localhost/baddit"
+//  url      = "postgresql://baddit:baddit@localhost/baddit"
 }
 
 model User {
@@ -92,6 +92,7 @@ model FriendRequests {
 model ChatChannels {
   id         String                  @id @default(uuid())
   name       String
+  avatarUrl  String                  @default("https://placehold.co/400.png")
   members    User[]                  @relation("IsChatMemberOfChannel")
   messages   ChatMessages[]
   createdAt  DateTime                @default(now())
@@ -104,8 +105,9 @@ model ChatMessages {
   senderId       String
   channel        ChatChannels            @relation(fields: [channelId], references: [id])
   channelId      String
-  content        String // This field is text or image url
+  content        String
   type           ChatMessageType         @default(TEXT)
+  mediaUrls      String[]
   createdAt      DateTime                @default(now())
   chatReadStatus ChatChannelReadStatus[]
 }

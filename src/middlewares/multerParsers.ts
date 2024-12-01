@@ -46,3 +46,14 @@ export const postMediaParser = multer({
     }
   },
 });
+
+export const chatMediaParser = multer({
+  storage: storage.chatMediaStorage,
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith("image")) {
+      cb(null, true);
+    } else {
+      cb(new HttpException(HttpStatusCode.BAD_REQUEST, APP_ERROR_CODE.onlyImageOrVideoAllowed));
+    }
+  },
+})

@@ -48,9 +48,18 @@ const postMediaOpts: cloudinaryOptions = {
   },
 };
 
+const chatMediaOpts: cloudinaryOptions = {
+  cloudinary: cloudinary,
+  params: {
+    folder: "chat_images",
+    public_id: (req, file) => "chat_image_" + randomstring.generate(10),
+  },
+};
+
 export const storage = {
   avatarStorage: new CloudinaryStorage(multerAvatarOpts),
   logoStorage: new CloudinaryStorage(multerLogoOpts),
   bannerStorage: new CloudinaryStorage(multerBannerOpts),
   postMediaStorage: new CloudinaryStorage(postMediaOpts),
+  chatMediaStorage: new CloudinaryStorage(chatMediaOpts),
 };

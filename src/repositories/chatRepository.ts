@@ -68,6 +68,21 @@ const createMessage = async (senderId: string, channelId: string, content: strin
     })
 }
 
+const createMediaMessage = async (senderId: string, channelId: string, mediaUrls: string[]) => {
+    return await prisma.chatMessages.create({
+        data: {
+            senderId,
+            channelId,
+            content: "<MediaMessage>",
+            type: "IMAGE",
+            mediaUrls: mediaUrls
+        },
+        include: {
+            sender: true
+        }
+    })
+}
+
 const getChannelMessages = async (channelId: string, limit: number, offset: number) => {
     return await prisma.chatMessages.findMany({
         where: { channelId },
@@ -116,5 +131,6 @@ export const chatRepository = {
     createMessage,
     getChannelMessages,
     checkChannelMembership,
-    getAllChannels
+    getAllChannels,
+    createMediaMessage
 }

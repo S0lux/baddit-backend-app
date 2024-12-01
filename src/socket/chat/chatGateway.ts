@@ -54,6 +54,7 @@ async function sendMessage(socket: Socket, payload: MessagePayload) {
             sender: true
         }
     });
+    console.log(newMessage.type)
 
     socket.to(payload.channelId).emit("new_message", {
         id: newMessage.id,
@@ -63,7 +64,8 @@ async function sendMessage(socket: Socket, payload: MessagePayload) {
             avatarUrl: newMessage.sender.avatarUrl
         },
         content: newMessage.content,
-        createdAt: newMessage.createdAt.toISOString()
+        createdAt: newMessage.createdAt.toISOString(),
+        type: newMessage.type
     });
     socket.emit("new_message", {
         id: newMessage.id,
@@ -73,7 +75,8 @@ async function sendMessage(socket: Socket, payload: MessagePayload) {
             avatarUrl: newMessage.sender.avatarUrl
         },
         content: newMessage.content,
-        createdAt: newMessage.createdAt.toISOString()
+        createdAt: newMessage.createdAt.toISOString(),
+        type: newMessage.type
     });
     console.log("Message sent to channel", payload.channelId);
 }
