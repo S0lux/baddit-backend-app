@@ -66,10 +66,20 @@ const chatMediaOpts: cloudinaryOptions = {
   },
 };
 
+const chatChannelAvatarOpts: cloudinaryOptions = {
+  cloudinary: cloudinary,
+  params: {
+    folder: "channels",
+    public_id: (req, file) => "avt_" + randomstring.generate(10),
+    transformation: [{ width: 300, height: 300, crop: "limit", quality: "auto" }],
+  },
+};
+
 export const storage = {
   avatarStorage: new CloudinaryStorage(multerAvatarOpts),
   logoStorage: new CloudinaryStorage(multerLogoOpts),
   bannerStorage: new CloudinaryStorage(multerBannerOpts),
   postMediaStorage: new CloudinaryStorage(postMediaOpts),
   chatMediaStorage: new CloudinaryStorage(chatMediaOpts),
+  chatChannelAvatarStorage: new CloudinaryStorage(chatChannelAvatarOpts),
 };

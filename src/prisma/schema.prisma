@@ -38,6 +38,7 @@ model User {
   subscribedPosts         Post[]                  @relation("SubscribedToPost")
   subscribedComments      Comment[]               @relation("SubscribedToComment")
   chatChannels            ChatChannels[]          @relation("IsChatMemberOfChannel")
+  chatModeratorChannels   ChatChannels[]          @relation("IsChatModeratorOfChannel")
   sentMessages            ChatMessages[]
   readStatus              ChatChannelReadStatus[]
   fcmTokens               FcmTokens[]
@@ -94,7 +95,9 @@ model ChatChannels {
   name       String
   avatarUrl  String                  @default("https://placehold.co/400.png")
   members    User[]                  @relation("IsChatMemberOfChannel")
+  moderators User[]                  @relation("IsChatModeratorOfChannel")
   messages   ChatMessages[]
+  isDeleted Boolean                 @default(false)
   createdAt  DateTime                @default(now())
   readStatus ChatChannelReadStatus[]
 }
@@ -109,6 +112,7 @@ model ChatMessages {
   type           ChatMessageType         @default(TEXT)
   mediaUrls      String[]
   createdAt      DateTime                @default(now())
+  isDeleted      Boolean                 @default(false)
   chatReadStatus ChatChannelReadStatus[]
 }
 

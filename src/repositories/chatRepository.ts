@@ -19,6 +19,20 @@ const createDirectChatChannel = async (userId1: string, userId2: string) => {
     })
 }
 
+const createChatChannel = async (userId: string, name: string, memberIds: string[]) => {
+    return await prisma.chatChannels.create({
+        data: {
+            name,
+            members: {
+                connect: memberIds.map(id => ({ id }))
+            }
+        },
+        include: {
+            members: true
+        }
+    })
+}
+
 const getOrCreateDirectChatChannel = async (userId1: string, userId2: string) => {
     // First, try to find an existing direct chat channel between these two users
     const existingChannel = await prisma.chatChannels.findFirst({
@@ -125,6 +139,94 @@ const checkChannelMembership = async (userId: string, channelId: string) => {
     return !!channel
 }
 
+const checkParticipantPermission = async (userId: string, channelId: string) => {
+    const channel = await prisma.chatChannels.findUnique({
+        where: {
+            id: channelId,
+            moderators: {
+                some: {
+                    id: userId
+                }
+            }
+        }
+    })
+
+    return !!channel
+}
+
+const updateChatChannelName = async (channelId: string, name: string) => {
+    return await prisma.chatChannels.update({
+        where: { id: channelId },
+        data: { name }
+    })
+}
+
+const updateChatChannelAvatar = async (channelId: string, avatarUrl: string) => {
+    return await prisma.chatChannels.update({
+        where: { id: channelId },
+        data: { avatarUrl }
+    })
+}
+
+const addMembersToChatChannel = async (channelId: string, memberIds: string[]) => {
+    return await prisma.chatChannels.update({
+        where: { id: channelId },
+        data: {
+            members: {
+                connect: memberIds.map(id => ({ id }))
+            }
+        }
+    })
+}
+
+const removeMembersFromChatChannel = async (channelId: string, memberIds: string[]) => {
+    return await prisma.chatChannels.update({
+        where: { id: channelId },
+        data: {
+            members: {
+                disconnect: memberIds.map(id => ({ id }))
+            }
+        }
+    })
+}
+
+const deleteChatChannel = async (channelId: string) => {
+    return await prisma.chatChannels.update({
+        where: { id: channelId },
+        data: { isDeleted: true }
+    }
+    )
+}
+
+const addModeratorsToChatChannel = async (channelId: string, moderatorIds: string[]) => {
+    return await prisma.chatChannels.update({
+        where: { id: channelId },
+        data: {
+            moderators: {
+                connect: moderatorIds.map(id => ({ id }))
+            }
+        }
+    })
+}
+
+const deleteMessage = async (messageId: string) => {
+    return await prisma.chatMessages.update({
+        where: { id: messageId },
+        data: { isDeleted: true }
+    })
+}
+
+const checkMessagePermission = async (userId: string, messageId: string) => {
+    const message = await prisma.chatMessages.findUnique({
+        where: {
+            id: messageId,
+            senderId: userId
+        }
+    })
+
+    return !!message
+}
+
 export const chatRepository = {
     createDirectChatChannel,
     getOrCreateDirectChatChannel,
@@ -132,5 +234,15 @@ export const chatRepository = {
     getChannelMessages,
     checkChannelMembership,
     getAllChannels,
-    createMediaMessage
+    createMediaMessage,
+    createChatChannel,
+    updateChatChannelName,
+    updateChatChannelAvatar,
+    addMembersToChatChannel,
+    removeMembersFromChatChannel,
+    deleteChatChannel,
+    addModeratorsToChatChannel,
+    deleteMessage,
+    checkParticipantPermission,
+    checkMessagePermission
 }
