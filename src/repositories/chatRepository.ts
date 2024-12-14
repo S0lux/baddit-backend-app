@@ -14,21 +14,28 @@ const createDirectChatChannel = async (userId1: string, userId2: string) => {
             }
         },
         include: {
-            members: true
+            members: true,
+            moderators: true
         }
     })
 }
 
 const createChatChannel = async (userId: string, name: string, memberIds: string[]) => {
+    memberIds.push(userId);
     return await prisma.chatChannels.create({
         data: {
             name,
             members: {
-                connect: memberIds.map(id => ({ id }))
-            }
+                connect: memberIds.map(id => ({ id })),
+            },
+            moderators: {
+                connect: [{ id: userId }]
+            },
+            type: "GROUP"
         },
         include: {
-            members: true
+            members: true,
+            moderators: true
         }
     })
 }
@@ -39,11 +46,15 @@ const getOrCreateDirectChatChannel = async (userId1: string, userId2: string) =>
         where: {
             AND: [
                 { members: { some: { id: userId1 } } },
-                { members: { some: { id: userId2 } } }
+                { members: { some: { id: userId2 } } },
+                //the checking channel MUST only have 2 members
+                { members: { every: { id: { in: [userId1, userId2] } } } },
+                { type: "DIRECT" }
             ]
         },
         include: {
-            members: true
+            members: true,
+            moderators: true,
         }
     });
 
@@ -64,7 +75,8 @@ const getOrCreateDirectChatChannel = async (userId1: string, userId2: string) =>
             }
         },
         include: {
-            members: true
+            members: true,
+            moderators: true,
         }
     });
 }
@@ -109,6 +121,12 @@ const getChannelMessages = async (channelId: string, limit: number, offset: numb
     })
 }
 
+const getChannel = async (channelId: string) => {
+    return await prisma.chatChannels.findUnique({
+        where: { id: channelId }
+    })
+}
+
 const getAllChannels = async (userId: string) => {
     return await prisma.chatChannels.findMany({
         where: {
@@ -119,7 +137,8 @@ const getAllChannels = async (userId: string) => {
             }
         }
         , include: {
-            members: true
+            members: true,
+            moderators: true,
         }
     })
 }
@@ -157,14 +176,22 @@ const checkParticipantPermission = async (userId: string, channelId: string) => 
 const updateChatChannelName = async (channelId: string, name: string) => {
     return await prisma.chatChannels.update({
         where: { id: channelId },
-        data: { name }
+        data: { name },
+        include: {
+            moderators: true,
+            members: true,
+        }
     })
 }
 
 const updateChatChannelAvatar = async (channelId: string, avatarUrl: string) => {
     return await prisma.chatChannels.update({
         where: { id: channelId },
-        data: { avatarUrl }
+        data: { avatarUrl },
+        include: {
+            moderators: true,
+            members: true,
+        }
     })
 }
 
@@ -175,6 +202,10 @@ const addMembersToChatChannel = async (channelId: string, memberIds: string[]) =
             members: {
                 connect: memberIds.map(id => ({ id }))
             }
+        },
+        include: {
+            moderators: true,
+            members: true,
         }
     })
 }
@@ -186,6 +217,10 @@ const removeMembersFromChatChannel = async (channelId: string, memberIds: string
             members: {
                 disconnect: memberIds.map(id => ({ id }))
             }
+        },
+        include: {
+            moderators: true,
+            members: true,
         }
     })
 }
@@ -193,7 +228,11 @@ const removeMembersFromChatChannel = async (channelId: string, memberIds: string
 const deleteChatChannel = async (channelId: string) => {
     return await prisma.chatChannels.update({
         where: { id: channelId },
-        data: { isDeleted: true }
+        data: { isDeleted: true },
+        include: {
+            moderators: true,
+            members: true,
+        }
     }
     )
 }
@@ -205,6 +244,10 @@ const addModeratorsToChatChannel = async (channelId: string, moderatorIds: strin
             moderators: {
                 connect: moderatorIds.map(id => ({ id }))
             }
+        },
+        include: {
+            moderators: true,
+            members: true,
         }
     })
 }
@@ -244,5 +287,6 @@ export const chatRepository = {
     addModeratorsToChatChannel,
     deleteMessage,
     checkParticipantPermission,
-    checkMessagePermission
+    checkMessagePermission,
+    getChannel
 }

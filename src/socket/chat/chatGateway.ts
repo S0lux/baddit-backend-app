@@ -6,24 +6,20 @@ const prisma = new PrismaClient();
 
 export const chatGateway = (io: Server) => {
     io.on("connection", (socket: Socket) => {
-        console.log("User connected to socket server")
 
         socket.on("join_channel", (data: { channelId: string }) => {
             const { channelId } = data;
             socket.join(channelId);
-            console.log(`User joined channel ${channelId}`);
         });
 
         socket.on("send_message", async (payload: MessagePayload) => {
             try {
                 const newMessage = await sendMessage(socket, payload);
             } catch (error) {
-                console.error("Error sending message:", error);
             }
         });
 
         socket.on("disconnect", () => {
-            console.log("User disconnected from socket server");
         });
     });
 }
@@ -57,7 +53,6 @@ async function sendMessage(socket: Socket, payload: MessagePayload) {
             sender: true
         }
     });
-    console.log(newMessage.mediaUrls)
 
     socket.to(payload.channelId).emit("new_message", {
         id: newMessage.id,
@@ -69,7 +64,9 @@ async function sendMessage(socket: Socket, payload: MessagePayload) {
         content: newMessage.content,
         createdAt: newMessage.createdAt.toISOString(),
         type: newMessage.type,
-        mediaUrls: newMessage.mediaUrls
+        mediaUrls: newMessage.mediaUrls,
+        isDeleted: newMessage.isDeleted,
+        channelId: newMessage.channelId,
     });
     socket.emit("new_message", {
         id: newMessage.id,
@@ -81,7 +78,7 @@ async function sendMessage(socket: Socket, payload: MessagePayload) {
         content: newMessage.content,
         createdAt: newMessage.createdAt.toISOString(),
         type: newMessage.type,
-        mediaUrls: newMessage.mediaUrls
+        mediaUrls: newMessage.mediaUrls,
+        channelId: newMessage.channelId,
     });
-    console.log("Message sent to channel", payload.channelId);
 }

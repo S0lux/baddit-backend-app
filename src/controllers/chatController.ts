@@ -50,9 +50,11 @@ const getChannelMessages = async (req: Request, res: Response, next: NextFunctio
             parsedOffset
         );
 
+
         res.status(HttpStatusCode.SUCCESS).json(
             messages
         );
+
     } catch (error) {
         next(error);
     }
@@ -84,6 +86,8 @@ const getOrCreateDirectChannel = async (req: Request, res: Response, next: NextF
             targetUserId
         );
 
+        console.log("Channel Direc: ", channel);
+
         res.status(HttpStatusCode.SUCCESS).json(
             channel
         );
@@ -105,7 +109,6 @@ const getAllChannels = async (req: Request, res: Response, next: NextFunction) =
         }
 
         const channels = await chatService.getAllChannels(userId);
-
         res.status(HttpStatusCode.SUCCESS).json(
             channels
         );
@@ -187,6 +190,7 @@ const addMembersToChatChannel = async (req: Request, res: Response, next: NextFu
 const deleteChatChannel = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { channelId } = req.params;
+        console.log("Delete target id: ", channelId);
         const updatedChannel = await chatService.deleteChatChannel(req.user!.id, channelId);
         res.status(HttpStatusCode.SUCCESS).json(updatedChannel);
     } catch (error) {
@@ -204,8 +208,29 @@ const deleteMessage = async (req: Request, res: Response, next: NextFunction) =>
     }
 }
 
+const getChatChannel = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { channelId } = req.params;
+        const channel = await chatService.getChatChannel(channelId);
+        res.status(HttpStatusCode.SUCCESS).json(channel);
+    } catch (error) {
+        next(error);
+    }
+}
+
+const removeMembersFromChatChannel = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { channelId, memberIds } = req.body;
+        const updatedChannel = await chatService.removeMembersFromChatChannel(req.user!.id, channelId, memberIds);
+        res.status(HttpStatusCode.SUCCESS).json(updatedChannel);
+    } catch (error) {
+        next(error);
+    }
+}
+
 
 export const chatController = {
+    getChatChannel,
     sendMessage,
     getChannelMessages,
     getOrCreateDirectChannel,
@@ -217,5 +242,6 @@ export const chatController = {
     addModeratorsToChat,
     addMembersToChatChannel,
     deleteChatChannel,
-    deleteMessage
+    deleteMessage,
+    removeMembersFromChatChannel
 }

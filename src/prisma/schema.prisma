@@ -97,6 +97,7 @@ model ChatChannels {
   members    User[]                  @relation("IsChatMemberOfChannel")
   moderators User[]                  @relation("IsChatModeratorOfChannel")
   messages   ChatMessages[]
+  type       ChatChannelType        @default(DIRECT)
   isDeleted Boolean                 @default(false)
   createdAt  DateTime                @default(now())
   readStatus ChatChannelReadStatus[]
@@ -272,4 +273,9 @@ enum UserRelation {
 enum ChatMessageType {
   TEXT
   IMAGE
+}
+
+enum ChatChannelType{
+  DIRECT
+  GROUP
 }

@@ -5,7 +5,6 @@ import notificationService from "../services/notificationService";
 const getFriends = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const currentFriends = await friendService.getFriends(req.params.userId);
-    console.log(currentFriends)
     res.status(200).json(currentFriends);
   } catch (error) {
     next(error);

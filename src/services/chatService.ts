@@ -196,6 +196,7 @@ class ChatChannelService {
     async deleteChatChannel(userId: string, channelId: string) {
         try {
             const isAllowToUpdate = await chatRepository.checkParticipantPermission(userId, channelId);
+            console.log(isAllowToUpdate)
             if (isAllowToUpdate === false) {
                 throw new HttpException(HttpStatusCode.FORBIDDEN, {
                     code: "NOT_CHANNEL_MODERATOR",
@@ -219,6 +220,31 @@ class ChatChannelService {
                 });
             }
             return await chatRepository.deleteMessage(messageId);
+        }
+        catch (err) {
+            throw new HttpException(HttpStatusCode.INTERNAL_SERVER_ERROR, APP_ERROR_CODE.serverError);
+        }
+    }
+
+    async getChatChannel(channelId: string) {
+        try {
+            return await chatRepository.getChannel(channelId);
+        }
+        catch (err) {
+            throw new HttpException(HttpStatusCode.INTERNAL_SERVER_ERROR, APP_ERROR_CODE.serverError);
+        }
+    }
+
+    async removeMembersFromChatChannel(userId: string, channelId: string, memberIds: string[]) {
+        try {
+            const isAllowToUpdate = await chatRepository.checkParticipantPermission(userId, channelId);
+            if (isAllowToUpdate === false) {
+                throw new HttpException(HttpStatusCode.FORBIDDEN, {
+                    code: "NOT_CHANNEL_MODERATOR",
+                    message: "You are not a moderator of this chat channel"
+                });
+            }
+            return await chatRepository.removeMembersFromChatChannel(channelId, memberIds);
         }
         catch (err) {
             throw new HttpException(HttpStatusCode.INTERNAL_SERVER_ERROR, APP_ERROR_CODE.serverError);
