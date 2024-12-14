@@ -14,7 +14,7 @@ class CommentService {
       parentId,
     };
     try {
-      await commentRepository.createComment(commentData);
+      return await commentRepository.createComment(commentData);
     } catch (errr) {
       throw new HttpException(
         HttpStatusCode.INTERNAL_SERVER_ERROR,

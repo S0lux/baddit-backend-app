@@ -1,5 +1,7 @@
 import { PostType, Prisma, PrismaClient, VoteState } from "@prisma/client";
 import { DefaultArgs } from "@prisma/client/runtime/library";
+import { sub } from "date-fns";
+import { get } from "http";
 
 const prisma = new PrismaClient();
 
@@ -35,7 +37,7 @@ const getPostsWithQueries = async (queries: {
   postTitle?: string;
   orderByScore?: string;
 }) => {
-  return await prisma.post.findMany({
+  const posts = await prisma.post.findMany({
     where: {
       author: { username: queries.authorName },
       id: queries.postId,
@@ -55,9 +57,21 @@ const getPostsWithQueries = async (queries: {
       },
       author: true,
       community: true,
+      subscribers: queries.requesterId
+        ? {
+            where: {
+              id: queries.requesterId,
+            },
+          }
+        : false,
       _count: { select: { comments: true } },
     },
   });
+
+  return posts.map((post) => ({
+    ...post,
+    isSubscribed: post.subscribers && post.subscribers.length > 0,
+  }));
 };
 
 const overrideVoteState = async (
@@ -141,6 +155,37 @@ const editTextPostContent = async (postId: string, content: string) => {
   });
 };
 
+const subscribeToPost = async (postId: string, userId: string) => {
+  return await prisma.post.update({
+    where: { id: postId },
+    data: {
+      subscribers: {
+        connect: { id: userId },
+      },
+    },
+  });
+};
+
+const unsubscribeFromPost = async (postId: string, userId: string) => {
+  return await prisma.post.update({
+    where: { id: postId },
+    data: {
+      subscribers: {
+        disconnect: { id: userId },
+      },
+    },
+  });
+};
+
+const getPostSubscriberIds = async (postId: string) => {
+  const subscribers = await prisma.post.findUnique({
+    where: { id: postId },
+    select: { subscribers: { select: { id: true } } },
+  });
+
+  return subscribers?.subscribers.map((subscriber) => subscriber.id);
+};
+
 export const postRepository = {
   createPost,
   getPostsWithQueries,
@@ -151,4 +196,7 @@ export const postRepository = {
   deletePost,
   deleteAllPostsInCommunity,
   editTextPostContent,
+  subscribeToPost,
+  unsubscribeFromPost,
+  getPostSubscriberIds,
 };

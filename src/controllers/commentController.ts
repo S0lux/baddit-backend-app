@@ -8,7 +8,8 @@ import { voteCommentBodyValidator } from "../validators/schemas/voteCommentBody"
 import { reformatters } from "../utils/reformatters";
 import { HttpException } from "../exception/httpError";
 import { APP_ERROR_CODE, HttpStatusCode } from "../constants/constant";
-import userService from "../services/userService";
+import notificationService from "../services/notificationService";
+import { commentRepository } from "../repositories/commentRepository";
 
 const createComment = async (req: Request, res: Response, next: NextFunction) => {
   const userId = req.user!.id;
@@ -17,12 +18,54 @@ const createComment = async (req: Request, res: Response, next: NextFunction) =>
     if (!postId) {
       throw new HttpException(HttpStatusCode.BAD_REQUEST, APP_ERROR_CODE.unexpectedBody);
     }
-    await commentService.createComment(
+
+    const newComment = await commentService.createComment(
       content,
       userId,
       postId as string | undefined,
       parentId as string | undefined
     );
+
+    if (postId && !parentId) {
+      const subscribers = await postRepository.getPostSubscriberIds(postId);
+      if (subscribers && subscribers.length > 0) {
+        await notificationService.createNotification(
+          subscribers.filter((subscriber) => subscriber !== userId),
+          "NEW_COMMENT",
+          {
+            type: "NEW_COMMENT",
+            title: "New comment",
+            body: `${req.user!.username} commented on a post you are subscribed to`,
+            typeId: newComment.id,
+          },
+          {
+            title: "New comment",
+            body: `${req.user!.username} commented on a post you are subscribed to`,
+            clickAction: "NEW_COMMENT",
+          }
+        );
+      }
+    } else {
+      const subscriberIds = await commentRepository.getCommentSubscriberIds(parentId!);
+      if (subscriberIds && subscriberIds.length > 0) {
+        await notificationService.createNotification(
+          subscriberIds.filter((subscriber) => subscriber !== userId),
+          "NEW_COMMENT",
+          {
+            type: "COMMENT",
+            title: "New reply",
+            body: `${req.user!.username} replied to a comment you are subscribed to`,
+            typeId: newComment.id,
+          },
+          {
+            title: "New reply",
+            body: `${req.user!.username} replied to a comment you are subscribed to`,
+            clickAction: "NEW_COMMENT",
+          }
+        );
+      }
+    }
+
     res.status(201).json({ message: "Comment created successfully" });
   } catch (err) {
     next(err);

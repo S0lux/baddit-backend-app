@@ -193,6 +193,19 @@ class PostService {
       throw new HttpException(HttpStatusCode.INTERNAL_SERVER_ERROR, APP_ERROR_CODE.serverError);
     }
   }
+
+  async setUserPostSubscription(postId: string, userId: string, isSubscribed: boolean) {
+    try {
+      if (isSubscribed) {
+        await postRepository.subscribeToPost(postId, userId);
+      } else {
+        await postRepository.unsubscribeFromPost(postId, userId);
+      }
+    } catch (err) {
+      console.log(err);
+      throw new HttpException(HttpStatusCode.INTERNAL_SERVER_ERROR, APP_ERROR_CODE.serverError);
+    }
+  }
 }
 
 export default new PostService();

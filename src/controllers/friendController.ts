@@ -27,6 +27,7 @@ const sendFriendRequest = async (req: Request, res: Response, next: NextFunction
       {
         title: "Friend request",
         body: `${req.user!.username} sent you a friend request`,
+        clickAction: "FRIEND_REQUEST",
       }
     );
 
