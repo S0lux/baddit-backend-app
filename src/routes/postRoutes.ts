@@ -219,4 +219,7 @@ router.put("/:postId", postController.editTextPostContent);
  */
 router.post("/:postId/votes", postValidators.vote, postController.votePost);
 
+router.patch("/:postId/subscribe", postController.subscribeToPost);
+router.patch("/:postId/unsubscribe", postController.unsubscribeFromPost);
+
 export default router;

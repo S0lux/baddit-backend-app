@@ -130,6 +130,30 @@ const editTextPostContent = async (req: Request, res: Response, next: NextFuncti
   }
 };
 
+const subscribeToPost = async (req: Request, res: Response, next: NextFunction) => {
+  const userId = req.user!.id;
+  const postId = req.params["postId"];
+
+  try {
+    await postService.setUserPostSubscription(postId, userId, true);
+    res.status(200).json({ message: "Subscribed to post" });
+  } catch (err) {
+    next(err);
+  }
+};
+
+const unsubscribeFromPost = async (req: Request, res: Response, next: NextFunction) => {
+  const userId = req.user!.id;
+  const postId = req.params["postId"];
+
+  try {
+    await postService.setUserPostSubscription(postId, userId, false);
+    res.status(200).json({ message: "Unsubscribed from post" });
+  } catch (err) {
+    next(err);
+  }
+};
+
 export const postController = {
   createPost,
   votePost,
@@ -137,4 +161,6 @@ export const postController = {
   deletePost,
   editTextPostContent,
   getPostsWithQueries,
+  subscribeToPost,
+  unsubscribeFromPost,
 };

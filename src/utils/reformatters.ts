@@ -22,7 +22,7 @@ type Members = Prisma.UserCommunityGetPayload<{
   };
 }>;
 
-function reformatPosts(posts: Posts[]) {
+function reformatPosts(posts: (Posts & { isSubscribed: boolean })[]) {
   const formattedPosts = posts.map((post) => ({
     id: post.id,
     type: post.type,
@@ -32,6 +32,7 @@ function reformatPosts(posts: Posts[]) {
     score: post.score,
     voteState: post.vote[0]?.state || null,
     commentCount: post._count.comments,
+    isSubscribed: post.isSubscribed,
     author: {
       id: post.authorId,
       username: post.author.username,
@@ -60,14 +61,13 @@ function reformatUserCommunities(userCommunities: UserCommunities[]) {
   return formattedUserCommunities;
 }
 
-function reformatOtherUsers(user: { targetUser: Prisma.UserGetPayload<{}>, isFriend: boolean }) {
+function reformatOtherUsers(user: { targetUser: Prisma.UserGetPayload<{}>; isFriend: boolean }) {
   const formattedUsers = {
     ...user.targetUser,
     isFriend: user.isFriend,
   };
   return formattedUsers;
 }
-
 
 function reformatComments(comments: any) {
   // Helper function to transform a single comment

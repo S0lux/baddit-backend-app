@@ -267,6 +267,19 @@ const getCommentById = async (commentId: string) => {
   });
 };
 
+const getCommentSubscriberIds = async (commentId: string) => {
+  const comment = await prisma.comment.findUnique({
+    where: {
+      id: commentId,
+    },
+    include: {
+      subscribers: true,
+    },
+  });
+
+  return comment?.subscribers.map((subscriber) => subscriber.id);
+};
+
 export const commentRepository = {
   createComment,
   getCommentById,
@@ -278,4 +291,5 @@ export const commentRepository = {
   findUserVoteState,
   deleteVoteState,
   overrideVoteState,
+  getCommentSubscriberIds,
 };
