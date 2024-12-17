@@ -59,10 +59,10 @@ const getPostsWithQueries = async (queries: {
       community: true,
       subscribers: queries.requesterId
         ? {
-            where: {
-              id: queries.requesterId,
-            },
-          }
+          where: {
+            id: queries.requesterId,
+          },
+        }
         : false,
       _count: { select: { comments: true } },
     },

@@ -50,9 +50,11 @@ const getChannelMessages = async (req: Request, res: Response, next: NextFunctio
             parsedOffset
         );
 
+
         res.status(HttpStatusCode.SUCCESS).json(
             messages
         );
+
     } catch (error) {
         next(error);
     }
@@ -84,6 +86,8 @@ const getOrCreateDirectChannel = async (req: Request, res: Response, next: NextF
             targetUserId
         );
 
+        console.log("Channel Direc: ", channel);
+
         res.status(HttpStatusCode.SUCCESS).json(
             channel
         );
@@ -105,7 +109,6 @@ const getAllChannels = async (req: Request, res: Response, next: NextFunction) =
         }
 
         const channels = await chatService.getAllChannels(userId);
-
         res.status(HttpStatusCode.SUCCESS).json(
             channels
         );
@@ -114,9 +117,131 @@ const getAllChannels = async (req: Request, res: Response, next: NextFunction) =
     }
 }
 
+const uploadFile = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { channelId } = req.body;
+
+        if (!channelId) {
+            throw new HttpException(HttpStatusCode.BAD_REQUEST, {
+                code: "MISSING_CHANNEL_ID",
+                message: "Channel ID is required"
+            });
+        }
+
+        const mediaUrls = await chatService.uploadFile(req.user!.id, channelId, req.files as Express.Multer.File[]);
+
+        res.status(HttpStatusCode.SUCCESS).json(mediaUrls);
+
+    } catch (error) {
+        next(error);
+    }
+}
+
+const createChatChannel = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { channelName, memberIds } = req.body;
+        const channel = await chatService.createChatChannel(req.user!.id, channelName, memberIds);
+        res.status(HttpStatusCode.CREATED).json(channel);
+    } catch (err) {
+        next(err);
+    }
+}
+
+const updateChatChannelName = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { channelId, name } = req.body;
+        const updatedChannel = await chatService.updateChatChannelName(req.user!.id, channelId, name);
+        res.status(HttpStatusCode.SUCCESS).json(updatedChannel);
+    } catch (error) {
+        next(error);
+    }
+}
+
+const updateChannelAvatar = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { channelId } = req.body;
+        const updatedChannel = await chatService.updateChatChannelAvatar(req.user!.id, channelId, req.file!.path);
+        res.status(HttpStatusCode.SUCCESS).json(updatedChannel);
+    } catch (error) {
+        next(error);
+    }
+}
+
+const addModeratorsToChat = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { channelId, moderatorIds } = req.body;
+        const updatedChannel = await chatService.addModeratorsToChat(req.user!.id, channelId, moderatorIds);
+        res.status(HttpStatusCode.SUCCESS).json(updatedChannel);
+    } catch (error) {
+        next(error);
+    }
+}
+
+const addMembersToChatChannel = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { channelId, memberIds } = req.body;
+        const updatedChannel = await chatService.addMembersToChatChannel(req.user!.id, channelId, memberIds);
+        res.status(HttpStatusCode.SUCCESS).json(updatedChannel);
+    } catch (error) {
+        next(error);
+    }
+}
+
+const deleteChatChannel = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { channelId } = req.params;
+        console.log("Delete target id: ", channelId);
+        const updatedChannel = await chatService.deleteChatChannel(req.user!.id, channelId);
+        res.status(HttpStatusCode.SUCCESS).json(updatedChannel);
+    } catch (error) {
+        next(error);
+    }
+}
+
+const deleteMessage = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { messageId } = req.params;
+        const updatedMessage = await chatService.deleteMessage(req.user!.id, messageId);
+        res.status(HttpStatusCode.SUCCESS).json(updatedMessage);
+    } catch (error) {
+        next(error);
+    }
+}
+
+const getChatChannel = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { channelId } = req.params;
+        const channel = await chatService.getChatChannel(channelId);
+        res.status(HttpStatusCode.SUCCESS).json(channel);
+    } catch (error) {
+        next(error);
+    }
+}
+
+const removeMembersFromChatChannel = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { channelId, memberIds } = req.body;
+        const updatedChannel = await chatService.removeMembersFromChatChannel(req.user!.id, channelId, memberIds);
+        res.status(HttpStatusCode.SUCCESS).json(updatedChannel);
+    } catch (error) {
+        next(error);
+    }
+}
+
+
 export const chatController = {
+    getChatChannel,
     sendMessage,
     getChannelMessages,
     getOrCreateDirectChannel,
-    getAllChannels
+    getAllChannels,
+    uploadFile,
+    createChatChannel,
+    updateChatChannelName,
+    updateChannelAvatar,
+    addModeratorsToChat,
+    addMembersToChatChannel,
+    deleteChatChannel,
+    deleteMessage,
+    removeMembersFromChatChannel
 }

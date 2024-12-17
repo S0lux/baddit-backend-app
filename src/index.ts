@@ -1,9 +1,9 @@
-import "./env";
-import app from "./app";
+import { UserRole } from "@prisma/client";
 import http from "http";
-import { PrismaClient, UserRole } from "@prisma/client";
-import { initializeSocketGateway } from "./socket/socketGateway";
-
+import { Server } from "socket.io";
+import app from "./app";
+import "./env";
+import { chatGateway } from "./socket/chat/chatGateway";
 declare global {
   namespace Express {
     interface User {
@@ -16,12 +16,22 @@ declare global {
 }
 
 
-const prisma = new PrismaClient();
+// const prisma = new PrismaClient();
 
-const httpServer = http.createServer(app).listen(3001, () => {
+const httpServer = http.createServer(app);
+
+const io = new Server(httpServer, {
+  cors: {
+    origin: "http://10.0.2.2:3001",
+    methods: ["GET", "POST"]
+  }
+})
+
+chatGateway(io);
+
+httpServer.listen(3001, () => {
   console.log(`Server is running on port 3001`);
 });
 
-// const socketGateway = initializeSocketGateway(app, httpServer, prisma);
 
 httpServer.setTimeout(60000);

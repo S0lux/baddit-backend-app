@@ -80,10 +80,10 @@ function reformatComments(comments: any) {
     comment.community =
       comment.post?.community != null
         ? {
-            id: comment.post.community.id,
-            name: comment.post.community.name,
-            logoUrl: comment.post.community.logoUrl,
-          }
+          id: comment.post.community.id,
+          name: comment.post.community.name,
+          logoUrl: comment.post.community.logoUrl,
+        }
         : null;
 
     delete comment.post;
