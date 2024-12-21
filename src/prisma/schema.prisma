@@ -42,6 +42,27 @@ model User {
   sentMessages            ChatMessages[]
   readStatus              ChatChannelReadStatus[]
   fcmTokens               FcmTokens[]
+  reportsMade     Report[]  @relation("ReportCreator")
+  reportsReceived Report[]  @relation("ReportedUser")
+  reportsResolved Report[]  @relation("ReportResolver")
+}
+
+model Report {
+  id        String    @id @default(uuid())
+  type      ReportType
+  reporter    User         @relation("ReportCreator", fields: [reporterId], references: [id])
+  reporterId  String
+  status      ReportStatus @default(PENDING)
+  createdAt   DateTime     @default(now())
+
+  resolvedBy  User?        @relation("ReportResolver", fields: [resolvedById], references: [id])
+  resolvedById String?
+
+  reportedUser User?       @relation("ReportedUser", fields: [reportedUserId], references: [id])
+  reportedUserId String?
+
+  reportedPost Post?       @relation("ReportedPost", fields: [reportedPostId], references: [id])
+  reportedPostId String?
 }
 
 model FcmTokens {
@@ -175,6 +196,7 @@ model Post {
   vote          PostVote[]
   comments      Comment[]
   subscribers   User[]     @relation("SubscribedToPost")
+  reports     Report[]  @relation("ReportedPost")
 }
 
 model PostVote {
@@ -278,4 +300,14 @@ enum ChatMessageType {
 enum ChatChannelType{
   DIRECT
   GROUP
+}
+
+enum ReportType{
+  POST
+  USER
+}
+
+enum ReportStatus{
+  PENDING
+  RESOLVED
 }
