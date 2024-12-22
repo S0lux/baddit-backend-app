@@ -18,7 +18,13 @@ const getMe = async (req: Request, res: Response, next: NextFunction) => {
     const queries = { userId };
     const rawCommunities = await communityService.getAllCommunitiesJoined(queries);
     const communities = reformatters.reformatUserCommunities(rawCommunities);
-    const result = { ...user, communities };
+
+    const getUser = await userService.getUserById(userId);
+    if (getUser?.status === "SUSPENDED")
+      throw new HttpException(HttpStatusCode.FORBIDDEN, APP_ERROR_CODE.userSuspended);
+
+    const result = { ...user, status: getUser!.status, communities };
+
     res.status(200).json(result);
   } catch (err) {
     next(err);

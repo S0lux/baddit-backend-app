@@ -173,4 +173,9 @@ export const APP_ERROR_CODE = {
     code: "FRIEND_REQUEST_ALREADY_SENT",
     message: "Friend request already sent",
   },
+
+  userSuspended: {
+    code: "USER_SUSPENDED",
+    message: "User is suspended",
+  },
 };

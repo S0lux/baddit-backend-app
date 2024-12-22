@@ -6,7 +6,7 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-//  url      = "postgresql://baddit:baddit@localhost/baddit"
+  //  url      = "postgresql://baddit:baddit@localhost/baddit"
 }
 
 model User {
@@ -42,27 +42,27 @@ model User {
   sentMessages            ChatMessages[]
   readStatus              ChatChannelReadStatus[]
   fcmTokens               FcmTokens[]
-  reportsMade     Report[]  @relation("ReportCreator")
-  reportsReceived Report[]  @relation("ReportedUser")
-  reportsResolved Report[]  @relation("ReportResolver")
+  reportsMade             Report[]                @relation("ReportCreator")
+  reportsReceived         Report[]                @relation("ReportedUser")
+  reportsResolved         Report[]                @relation("ReportResolver")
 }
 
 model Report {
-  id        String    @id @default(uuid())
-  type      ReportType
-  content  String
-  reporter    User         @relation("ReportCreator", fields: [reporterId], references: [id])
-  reporterId  String
-  status      ReportStatus @default(PENDING)
-  createdAt   DateTime     @default(now())
+  id         String       @id @default(uuid())
+  type       ReportType
+  content    String
+  reporter   User         @relation("ReportCreator", fields: [reporterId], references: [id])
+  reporterId String
+  status     ReportStatus @default(PENDING)
+  createdAt  DateTime     @default(now())
 
-  resolvedBy  User?        @relation("ReportResolver", fields: [resolvedById], references: [id])
+  resolvedBy   User?   @relation("ReportResolver", fields: [resolvedById], references: [id])
   resolvedById String?
 
-  reportedUser User?       @relation("ReportedUser", fields: [reportedUserId], references: [id])
+  reportedUser   User?   @relation("ReportedUser", fields: [reportedUserId], references: [id])
   reportedUserId String?
 
-  reportedPost Post?       @relation("ReportedPost", fields: [reportedPostId], references: [id])
+  reportedPost   Post?   @relation("ReportedPost", fields: [reportedPostId], references: [id])
   reportedPostId String?
 }
 
@@ -119,8 +119,8 @@ model ChatChannels {
   members    User[]                  @relation("IsChatMemberOfChannel")
   moderators User[]                  @relation("IsChatModeratorOfChannel")
   messages   ChatMessages[]
-  type       ChatChannelType        @default(DIRECT)
-  isDeleted Boolean                 @default(false)
+  type       ChatChannelType         @default(DIRECT)
+  isDeleted  Boolean                 @default(false)
   createdAt  DateTime                @default(now())
   readStatus ChatChannelReadStatus[]
 }
@@ -197,7 +197,7 @@ model Post {
   vote          PostVote[]
   comments      Comment[]
   subscribers   User[]     @relation("SubscribedToPost")
-  reports     Report[]  @relation("ReportedPost")
+  reports       Report[]   @relation("ReportedPost")
 }
 
 model PostVote {
@@ -280,6 +280,7 @@ enum NotificationType {
   GLOBAL
   NEW_COMMENT
   FRIEND_REQUEST
+  ACCOUNT_SUSPENDED
 }
 
 enum FriendRequestStatus {
@@ -298,17 +299,17 @@ enum ChatMessageType {
   IMAGE
 }
 
-enum ChatChannelType{
+enum ChatChannelType {
   DIRECT
   GROUP
 }
 
-enum ReportType{
+enum ReportType {
   POST
   USER
 }
 
-enum ReportStatus{
+enum ReportStatus {
   PENDING
   RESOLVED
 }
