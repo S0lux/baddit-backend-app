@@ -22,7 +22,7 @@ const getUserFriends = async (userId: string) => {
   const userFriends = await prisma.userRelations.findMany({
     where: {
       relation: "FRIEND",
-      userId
+      OR: [{ userId: userId }, { targetUserId: userId }],
     },
     select: {
       user: {
