@@ -10,6 +10,7 @@ import commentRouter from "./routes/commentRoutes";
 import notificationRouter from "./routes/notificationRoutes";
 import friendRouter from "./routes/friendRoutes";
 import messageRouter from "./routes/chatRoutes";
+import reportRouter from "./routes/reportRoutes";
 
 import passport from "passport";
 import session from "express-session";
@@ -52,6 +53,7 @@ app.use("/v1/comments", commentRouter);
 app.use("/v1/notifications", notificationRouter);
 app.use("/v1/friends", friendRouter);
 app.use("/v1/messages", messageRouter);
+app.use("/v1/reports", reportRouter);
 
 app.use(handleError);
 

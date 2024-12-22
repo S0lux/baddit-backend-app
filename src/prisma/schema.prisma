@@ -50,6 +50,7 @@ model User {
 model Report {
   id        String    @id @default(uuid())
   type      ReportType
+  content  String
   reporter    User         @relation("ReportCreator", fields: [reporterId], references: [id])
   reporterId  String
   status      ReportStatus @default(PENDING)

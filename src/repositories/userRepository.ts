@@ -67,6 +67,13 @@ const updatePassword = async (userId: string, newPassword: string) => {
   });
 };
 
+const banUser = async (userId: string) => {
+  return await prisma.user.update({
+    where: { id: userId },
+    data: { status: "SUSPENDED" },
+  });
+}
+
 export const userRepository = {
   createUser,
   getUserByUsername,
@@ -79,4 +86,5 @@ export const userRepository = {
   getEmailTokens,
   updateEmailVerified,
   updatePassword,
+  banUser,
 };
