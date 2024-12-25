@@ -93,7 +93,8 @@ class CommentService {
       if (
         comment[0].authorId !== user.id &&
         user.role !== "ADMIN" &&
-        userCommunityRole?.communityRole !== "MODERATOR"
+        userCommunityRole?.communityRole !== "MODERATOR" &&
+        userCommunityRole?.communityRole !== "ADMIN"
       ) {
         throw new HttpException(HttpStatusCode.FORBIDDEN, APP_ERROR_CODE.insufficientPermissions);
       }
