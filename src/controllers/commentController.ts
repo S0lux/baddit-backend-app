@@ -109,10 +109,6 @@ const deleteComment = async (req: Request, res: Response, next: NextFunction) =>
       userCommunityRole = await communityService.getUserCommunityRole(user.id, community.id);
     }
 
-    console.log(commentId);
-    console.log(comment);
-    console.log(user);
-    console.log(userCommunityRole);
     await commentService.deleteComment(commentId, comment, user, userCommunityRole);
 
     res.status(200).json({ message: "Comment deleted" });
