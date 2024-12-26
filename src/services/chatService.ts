@@ -171,7 +171,7 @@ class ChatChannelService {
                     message: "You are not a moderator of this chat channel"
                 });
             }
-            return await chatRepository.addMembersToChatChannel(channelId, moderatorIds);
+            return await chatRepository.addModeratorsToChatChannel(channelId, moderatorIds);
         }
         catch (err) {
             throw new HttpException(HttpStatusCode.INTERNAL_SERVER_ERROR, APP_ERROR_CODE.serverError);
