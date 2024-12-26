@@ -13,8 +13,17 @@ export const chatGateway = (io: Server) => {
         });
 
         socket.on("send_message", async (payload: MessagePayload) => {
+            console.log("send_message", payload);
             try {
                 const newMessage = await sendMessage(socket, payload);
+            } catch (error) {
+            }
+        });
+
+        socket.on("delete_message", async (payload: deleteMessagePayload) => {
+            console.log("delete_message", payload);
+            try {
+                await deleteMessage(socket, payload);
             } catch (error) {
             }
         });
@@ -38,7 +47,31 @@ type MessagePayload = {
     mediaUrls: string[],
 }
 
+type deleteMessagePayload = {
+    channelId: string,
+    messageId: string,
+}
 
+async function deleteMessage(socket: Socket, payload: deleteMessagePayload) {
+    const deletedMessage = await prisma.chatMessages.update({
+        where: {
+            id: payload.messageId,
+            channelId: payload.channelId
+        },
+        data: {
+            isDeleted: true
+        }
+    });
+
+    socket.to(payload.channelId).emit("delete_message", {
+        messageId: deletedMessage.id,
+        channelId: deletedMessage.channelId
+    });
+    socket.emit("delete_message", {
+        messageId: deletedMessage.id,
+        channelId: deletedMessage.channelId
+    });
+}
 
 async function sendMessage(socket: Socket, payload: MessagePayload) {
     const newMessage = await prisma.chatMessages.create({
