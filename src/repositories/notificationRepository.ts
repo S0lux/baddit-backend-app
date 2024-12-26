@@ -123,18 +123,32 @@ const markNotificationAsRead = async (notificationId: string, userId: string) =>
 };
 
 const addOrUpdateFcmToken = async (userId: string, fcmToken: string) => {
+  // First check if this token exists for any other user
+  const existingToken = await prisma.fcmTokens.findUnique({
+    where: {
+      token: fcmToken,
+    },
+  });
+
+  if (existingToken && existingToken.userId !== userId) {
+    // If token exists for different user, delete the old association
+    await prisma.fcmTokens.delete({
+      where: {
+        token: fcmToken,
+      },
+    });
+  }
+
+  // Now create/update the token for the current user
   await prisma.fcmTokens.upsert({
     where: {
       userId: userId,
       token: fcmToken,
     },
     create: {
-      User: {
-        connect: {
-          id: userId,
-        },
-      },
+      userId: userId,
       token: fcmToken,
+      lastAccessDate: new Date(),
     },
     update: {
       lastAccessDate: new Date(),
